@@ -22,14 +22,29 @@ import os
 
 # The winning line (100 characters, one line, plain UTF-8 text).
 # Chosen by the local tournament in ../CANDIDATES.md (record 4-0).
-ENTRY = (
-    "Sleep no longer crashes at 3 a.m. with the error "
-    "'remember that embarrassing thing you did in 2012?'"
-)
+# It is kept as its three constituents -- the crash setup, the quoted
+# error message, and the year it replays -- and reassembled by
+# build_entry(), so the parts stay readable without touching the output.
+_SETUP = "Sleep no longer crashes at 3 a.m. with the error "
+_ERROR = "remember that embarrassing thing you did in "
+_YEAR = "2012?"
+
+
+def build_entry() -> str:
+    """Reassemble the winning patch-note line from its constituents."""
+    return _SETUP + "'" + _ERROR + _YEAR + "'"
+
+
+ENTRY = build_entry()
 
 
 def main() -> int:
     # Gate self-check: the sealed scorer only accepts 1-160 characters.
+    # The winning line is exactly 100 characters; pin that so any future
+    # edit that accidentally changes a word fails loudly instead of
+    # silently submitting a different line.
+    if len(ENTRY) != 100 or "\n" in ENTRY:
+        raise SystemExit("entry is no longer the 100-character winning line")
     if not 1 <= len(ENTRY) <= 160 or not ENTRY.strip():
         raise SystemExit("entry violates the 1-160 character gate")
     out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
